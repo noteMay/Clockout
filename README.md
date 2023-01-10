@@ -1,6 +1,6 @@
 # Clockout
 
-下班打卡
+下班回家
 
 - [起床打卡](https://github.com/noteMay/getup)
 - [睡觉打卡](https://github.com/noteMay/sleep)
