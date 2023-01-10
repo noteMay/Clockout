@@ -8,13 +8,26 @@ from github import Github
 # 14 for test 12 real get up
 GET_UP_ISSUE_NUMBER = 1   
 GET_UP_MESSAGE_TEMPLATE = (
-    "现在的时间是--{get_up_time}.\r\n\r\n 辛苦了！"
+    "现在的时间是--{get_up_time}.\r\n\r\n 辛苦了，好好休息吧！"
 )
+SENTENCE_API = "https://v1.jinrishici.com/all"
+DEFAULT_SENTENCE = "赏花归去马如飞\r\n去马如飞酒力微\r\n酒力微醒时已暮\r\n醒时已暮赏花归\r\n"
 TIMEZONE = "Asia/Shanghai"
 
 
 def login(token):
     return Github(token)
+
+
+def get_one_sentence():
+    try:
+        r = requests.get(SENTENCE_API)
+        if r.ok:
+            return r.json().get("content", DEFAULT_SENTENCE)
+        return DEFAULT_SENTENCE
+    except:
+        print("get SENTENCE_API wrong")
+        return DEFAULT_SENTENCE
 
 
 def get_today_get_up_status(issue):
@@ -28,6 +41,17 @@ def get_today_get_up_status(issue):
     )
     is_today = (latest_day.day == now.day) and (latest_day.month == now.month)
     return is_today
+
+
+def make_get_up_message():
+    sentence = get_one_sentence()
+    now = pendulum.now(TIMEZONE)
+    # 3 - 7 means early for me
+    is_get_up_early = 0 <= now.hour <= 24    
+    get_up_time = now.to_datetime_string()
+    body = GET_UP_MESSAGE_TEMPLATE.format(get_up_time=get_up_time, sentence=sentence)
+    return body, is_get_up_early
+
 
 def main(github_token, repo_name, weather_message, tele_token, tele_chat_id):
     u = login(github_token)
